@@ -25,8 +25,8 @@ const VARIEDADES = [
     notas: "",
   },
   {
-    slug: "bourbon-aruzi",
-    nombre: "Bourbon Aruzi",
+    slug: "Castillo Lavado",
+    nombre: "Castillo Lavado x 500gr",
     nuevo: true,
     estado: "disponible",
     descripcion: "Llega por primera vez a Justo.",

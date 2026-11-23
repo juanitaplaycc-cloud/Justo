@@ -35,13 +35,13 @@ function enlaceWhatsApp(mensaje) {
 function accionDeVariedad(variedad) {
   if (variedad.estado === "agotado") {
     return {
-      texto: "Avísame del próximo lote",
+      texto: "Avísame",
       mensaje: `Hola, quiero que me avisen cuando haya un nuevo lote de ${variedad.nombre}.`,
     };
   }
   if (variedad.estado === "proximo") {
     return {
-      texto: "Preguntar por el lote",
+      texto: "Preguntar",
       mensaje: `Hola, quiero saber cuándo estará disponible el café ${variedad.nombre}.`,
     };
   }
@@ -59,19 +59,38 @@ function crear(etiqueta, clase, texto) {
   return elemento;
 }
 
-// Crea el contenedor de imagen. Si la imagen no existe, queda el nombre como respaldo.
+// Dónde se busca la foto de cada variedad (Linux distingue mayúsculas de minúsculas)
+const CARPETAS_IMAGEN = ["/img/variedades/", "/img/"];
+const EXTENSIONES_IMAGEN = ["png", "webp", "jpg", "jpeg"];
+
+// Lista de rutas posibles: primero la que se indique en variedades.js, luego las habituales
+function rutasDeImagen(variedad) {
+  const habituales = CARPETAS_IMAGEN.flatMap((carpeta) =>
+    EXTENSIONES_IMAGEN.map((extension) => `${carpeta}${variedad.slug}.${extension}`)
+  );
+  return [variedad.imagen, ...habituales].filter(Boolean);
+}
+
+// Crea el marco con la imagen. Si la imagen no existe, queda el nombre como respaldo.
 function crearMedia(variedad, clase) {
   const media = crear("div", `media ${clase || ""}`.trim());
-  media.appendChild(crear("span", "media__ph", variedad.nombre));
+  const lienzo = crear("div", "media__lienzo");
+  lienzo.appendChild(crear("span", "media__ph", variedad.nombre));
 
   const imagen = document.createElement("img");
-  imagen.src = `/img/variedades/${variedad.slug}.png`;
   imagen.alt = `Café ${variedad.nombre} de Justo`;
   imagen.loading = "lazy";
   imagen.decoding = "async";
+  // Opcional: en variedades.js puedes poner posicion: "50% 30%" para elegir qué parte de la foto se ve
+  if (variedad.posicion) imagen.style.objectPosition = variedad.posicion;
   imagen.addEventListener("load", () => media.classList.add("ok"));
   imagen.addEventListener("error", () => imagen.remove());
-  media.appendChild(imagen);
+  imagen.src = `/img/variedades/${variedad.slug}.png`;
+  if (imagen.complete && imagen.naturalWidth > 0) media.classList.add("ok");
+
+  lienzo.appendChild(imagen);
+  media.appendChild(lienzo);
+  registrarParalaje(media);
 
   return media;
 }
@@ -282,6 +301,45 @@ function escalonarGrupos() {
   document.querySelectorAll(".franja__grid, .pasos, .info-3, .habitos").forEach((grupo) => {
     grupo.querySelectorAll(".reveal").forEach((elemento, indice) => {
       elemento.style.setProperty("--d", `${indice * 0.1}s`);
+    });
+  });
+}
+
+// Mueve suavemente cada foto dentro de su marco mientras se hace scroll
+const marcosVisibles = new Set();
+let observadorMarcos = null;
+let actualizacionPendiente = false;
+
+function registrarParalaje(media) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+
+  if (!observadorMarcos) {
+    observadorMarcos = new IntersectionObserver((entradas) => {
+      entradas.forEach((entrada) => {
+        if (entrada.isIntersecting) marcosVisibles.add(entrada.target);
+        else marcosVisibles.delete(entrada.target);
+      });
+      programarParalaje();
+    }, { rootMargin: "120px 0px" });
+
+    window.addEventListener("scroll", programarParalaje, { passive: true });
+    window.addEventListener("resize", programarParalaje);
+  }
+
+  observadorMarcos.observe(media);
+}
+
+function programarParalaje() {
+  if (actualizacionPendiente) return;
+  actualizacionPendiente = true;
+  requestAnimationFrame(() => {
+    actualizacionPendiente = false;
+    const altoVentana = window.innerHeight;
+    marcosVisibles.forEach((media) => {
+      const caja = media.getBoundingClientRect();
+      const progreso = (caja.top + caja.height / 2 - altoVentana / 2) / altoVentana;
+      const limitado = Math.max(-1, Math.min(1, progreso));
+      media.style.setProperty("--py", (limitado * -7).toFixed(2));
     });
   });
 }
