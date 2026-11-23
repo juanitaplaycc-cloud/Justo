@@ -21,11 +21,11 @@
    ============================================================ */
 
 /* ---------- 1. Tipografías y variables ---------- */
-@font-face { font-family: "Knockout"; src: url("/fonts/knockout-91.woff2") format("woff2"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Figtree"; src: url("/fonts/figtree-light.woff2") format("woff2"); font-weight: 300; font-display: swap; }
-@font-face { font-family: "Figtree"; src: url("/fonts/figtree-regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Figtree"; src: url("/fonts/figtree-medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
-@font-face { font-family: "Figtree"; src: url("/fonts/figtree-semibold.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Knockout"; src: url("/fonts/Knockout-91.otf") format("otf"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Figtree"; src: url("/fonts/Figtree-Light.ttf") format("ttf"); font-weight: 300; font-display: swap; }
+@font-face { font-family: "Figtree"; src: url("/fonts/figtree-regular.ttf") format("ttf"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Figtree"; src: url("/fonts/figtree-medium.ttf") format(""); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Figtree"; src: url("/fonts/figtree-semibold.ttf") format("ttf"); font-weight: 600; font-display: swap; }
 
 :root {
   --negro: #0d0d0c;          /* fondo de la página principal */
